@@ -1,6 +1,8 @@
 // write your code here
 const ramenURL = 'http://localhost:3000/ramens'
 const menuContainer = document.querySelector('#ramen-menu')
+const ramenForm = document.querySelector('#new-ramen')
+const ramenEditForm = document.querySelector('#edit-ramen')
 
 function renderRamen(ramen) {
     let img = document.createElement('img')
@@ -19,6 +21,7 @@ function renderDetail(ramen) {
     const img = document.querySelector('.detail-image')
     img.src = ramen.image
     img.alt = ramen.name
+    img.id = ramen.id
     const name = document.querySelector('.name')
     name.textContent = ramen.name
     const rest = document.querySelector('.restaurant')
@@ -34,6 +37,11 @@ function getRamen() {
     fetch(ramenURL).then(resp=>resp.json()).then(ramen=>ramen.forEach(element => {
         renderRamen(element)
     }))
+}
+
+function firstDetailRamen() {
+    const firstURL = ramenURL+'/1'
+    fetch(firstURL).then(resp=>resp.json()).then(ramen=>renderDetail(ramen))
 }
 
 function newRamen(e) {
@@ -56,7 +64,25 @@ function newRamen(e) {
     }).then(resp=>resp.json()).then(ramen=>renderRamen(ramen))
 }
 
+function editRamen(e) {
+    e.preventDefault()
+    const id = document.querySelector('.detail-image').id
+    const editURL = ramenURL + "/" + id
+    const new_rating = document.querySelector('#new-rating').value
+    const new_comment = document.querySelector('#new-comment').value
+    fetch(editURL, {
+        method: 'PATCH',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            rating: new_rating,
+            comment: new_comment
+        })
+    }).then(resp=>resp.json()).then(ramen=>renderRamen(ramen))
+}
+
 document.addEventListener('DOMContentLoaded',getRamen)
-document.querySelector('form').addEventListener('submit', (e)=>newRamen(e))
+document.addEventListener('DOMContentLoaded',firstDetailRamen)
+ramenForm.addEventListener('submit', (e)=>newRamen(e))
+ramenEditForm.addEventListener('submit', (e)=>editRamen(e))
 
 
